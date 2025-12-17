@@ -31,7 +31,13 @@ export async function POST(request: Request) {
         const text = response.text();
 
         // Clean up markdown if present
-        const svgContent = text.replace(/```xml/g, '').replace(/```svg/g, '').replace(/```/g, '').trim();
+        let svgContent = text.replace(/```xml/g, '').replace(/```svg/g, '').replace(/```/g, '').trim();
+
+        // Extract SVG tag if there's extra text
+        const svgMatch = svgContent.match(/<svg[\s\S]*?<\/svg>/i);
+        if (svgMatch) {
+            svgContent = svgMatch[0];
+        }
 
         // Convert to base64
         const base64Image = Buffer.from(svgContent).toString('base64');

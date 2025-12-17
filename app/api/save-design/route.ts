@@ -18,7 +18,7 @@ export async function POST(request: Request) {
 
         // 1. Upload image to Storage
         // Convert base64 to buffer
-        const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, "");
+        const base64Data = base64Image.replace(/^data:image\/.*;base64,/, "");
         const buffer = Buffer.from(base64Data, 'base64');
 
         const fileName = `${user.id}/${Date.now()}-design.svg`; // Assuming SVG from generate route

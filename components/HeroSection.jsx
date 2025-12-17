@@ -6,7 +6,7 @@ import AuthModal from './AuthModal';
 import PreviewModal from './PreviewModal';
 import ShippingForm from './ShippingForm';
 
-const HeroSection = () => {
+const HeroSection = ({ onDesignSaved }) => {
     // State management
     const [selectedColor, setSelectedColor] = useState('#000000');
     const [prompt, setPrompt] = useState('');
@@ -121,6 +121,7 @@ const HeroSection = () => {
             setIsShippingOpen(false);
             setPrompt('');
             setGeneratedImage(null);
+            if (onDesignSaved) onDesignSaved();
 
         } catch (error) {
             console.error("Save Error:", error);
