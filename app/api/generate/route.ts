@@ -26,27 +26,32 @@ export async function POST(request: Request) {
         // 3. Construct the Imagen 4 Prompt
         // We ask for a product photo directly.
         const fullPrompt = `
-            Professional high-end product photography of a ${color || 'white'} t-shirt laid flat on a clean, neutral background.
-            The t-shirt occupies most of the frame with minimal empty space around the edges.
+Professional high-end product photography of a ${color || 'white'} t-shirt laid perfectly flat on a clean, neutral background.
+The t-shirt is fully ironed, smooth, and wrinkle-free, with absolutely no creases, folds, or fabric distortions.
+The surface of the fabric should appear clean, taut, and evenly stretched.
 
-            A large, detailed, visually striking graphic design is printed on the chest area.
-            The design should be scaled slightly larger than standard prints, covering a prominent portion of the upper torso,
-            similar to modern premium graphic t-shirts.
+The t-shirt occupies most of the frame with minimal empty space around the edges.
 
-            Design description:
-            ${prompt}
+A large, detailed, visually striking graphic design is printed on the center of the chest.
+The design is scaled slightly larger than standard prints, covering a prominent portion of the upper torso,
+similar to premium modern graphic t-shirts.
 
-            Style and quality requirements:
-            - The tshirt should be ironed means no creases in the tshirt
-            - High-resolution, vibrant colors
-            - Crisp edges and sharp details
-            - Professional DTG print appearance
-            - Design blends naturally with the fabric texture
-            - No text unless explicitly mentioned
-            - No logos, watermarks, or mockups
-            - Realistic fabric folds, subtle shadows
-            - Photorealistic lighting, studio setup
-            `;
+Design description:
+${prompt}
+
+Style and quality requirements:
+- Completely smooth, ironed fabric (no wrinkles, no folds, no creases)
+- High-resolution, vibrant colors
+- Crisp edges and sharp details
+- Professional DTG print appearance
+- Design integrated naturally into the fabric (not floating or sticker-like)
+- No text unless explicitly mentioned in the prompt
+- No logos, watermarks, mannequins, or mockups
+- Clean studio lighting with soft, even shadows
+- Photorealistic, premium product catalog style
+- Ultra-detailed, 8K-quality output
+`;
+
         // 4. Call the Imagen 4 API Directly (Bypassing SDK issues)
         // We use the model specifically found in your list: 'imagen-4.0-generate-001'
         const response = await fetch(
