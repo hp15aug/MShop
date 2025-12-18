@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, ShoppingBag, Heart, Share2 } from 'lucide-react';
 import Link from 'next/link';
 
+import ProductImage from '@/components/ProductImage';
+
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const supabase = await createClient();
@@ -52,13 +54,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                         </div>
 
                         {/* Main Image */}
-                        <div className="aspect-[4/5] w-full bg-gray-50 rounded-2xl overflow-hidden relative">
-                            <img
-                                src={design.image_url}
-                                alt={design.prompt_text}
-                                className="w-full h-full object-cover object-center"
-                            />
-                        </div>
+                        <ProductImage src={design.image_url} alt={design.prompt_text} />
                     </div>
 
                     {/* Product Info (Right) */}
@@ -84,10 +80,23 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                         <div className="mb-8">
                             <h3 className="text-sm font-medium text-gray-900 mb-4">Color</h3>
                             <div className="flex items-center gap-3">
-                                <div
-                                    className="w-8 h-8 rounded-full border border-gray-200 ring-2 ring-offset-2 ring-gray-900"
-                                    style={{ backgroundColor: design.base_color === 'White' ? '#FFFFFF' : design.base_color }}
-                                />
+                                {(() => {
+                                    const colors = [
+                                        { name: 'Classic Black', hex: '#000000' },
+                                        { name: 'Crisp White', hex: '#FFFFFF' },
+                                        { name: 'Navy Blue', hex: '#1E3A8A' },
+                                        { name: 'Crimson Red', hex: '#DC2626' },
+                                        { name: 'Forest Green', hex: '#059669' },
+                                    ];
+                                    const colorHex = colors.find(c => c.name === design.base_color)?.hex || design.base_color;
+
+                                    return (
+                                        <div
+                                            className="w-8 h-8 rounded-full border border-gray-200 ring-2 ring-offset-2 ring-gray-900"
+                                            style={{ backgroundColor: colorHex === 'White' ? '#FFFFFF' : colorHex }}
+                                        />
+                                    );
+                                })()}
                                 <span className="text-sm text-gray-600">{design.base_color}</span>
                             </div>
                         </div>

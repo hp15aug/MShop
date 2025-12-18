@@ -21,7 +21,7 @@ export default function PreviewModal({ isOpen, onClose, imageUrl, onAccept, onRe
                             <img
                                 src={imageUrl}
                                 alt="Generated Design"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                             />
                         </div>
                     ) : (
