@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Shirt, Send, LogIn, Loader2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import AuthModal from './AuthModal';
@@ -23,6 +24,7 @@ const HeroSection = ({ onDesignSaved }) => {
     const [isSaving, setIsSaving] = useState(false);
 
     const supabase = createClient();
+    const router = useRouter();
 
     // Auth Listener
     useEffect(() => {
@@ -113,9 +115,10 @@ const HeroSection = ({ onDesignSaved }) => {
                 throw new Error(data.error || 'Failed to process order');
             }
 
-            setIsSuccessModalOpen(true);
+            // Redirect to Product Page
+            router.push(`/product/${data.design.id}`);
 
-            // Reset Flow
+            // Reset Flow (optional, since we are redirecting)
             setIsPreviewOpen(false);
             setPrompt('');
             setGeneratedImage(null);

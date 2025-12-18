@@ -35,7 +35,7 @@ export default function Header() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     {/* Logo / Brand */}
                     <Link href="/" className="text-xl font-light tracking-tight text-gray-900">
-                        <span className="font-semibold">M</span>Shop
+                        <span className="font-semibold">Vision</span> Shirt
                     </Link>
 
                     {/* Actions */}
