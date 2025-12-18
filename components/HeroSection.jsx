@@ -4,7 +4,7 @@ import { Shirt, Send, LogIn, Loader2 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import AuthModal from './AuthModal';
 import PreviewModal from './PreviewModal';
-import ShippingForm from './ShippingForm';
+import SuccessModal from './SuccessModal';
 
 const HeroSection = ({ onDesignSaved }) => {
     // State management
@@ -15,7 +15,7 @@ const HeroSection = ({ onDesignSaved }) => {
     // UI State
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [isShippingOpen, setIsShippingOpen] = useState(false);
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
     // Data State
     const [generatedImage, setGeneratedImage] = useState(null);
@@ -89,11 +89,10 @@ const HeroSection = ({ onDesignSaved }) => {
     };
 
     const handleAccept = () => {
-        setIsPreviewOpen(false);
-        setIsShippingOpen(true);
+        handleSaveOrder();
     };
 
-    const handleSaveOrder = async (shipmentDetails) => {
+    const handleSaveOrder = async () => {
         setIsSaving(true);
         try {
             const selectedColorName = colors.find(c => c.hex === selectedColor)?.name || 'Black';
@@ -105,7 +104,6 @@ const HeroSection = ({ onDesignSaved }) => {
                     base64Image: generatedImage, // Sends the full data URI (validated in handleGenerate)
                     prompt,
                     color: selectedColorName,
-                    shipmentDetails
                 }),
             });
 
@@ -115,17 +113,17 @@ const HeroSection = ({ onDesignSaved }) => {
                 throw new Error(data.error || 'Failed to process order');
             }
 
-            alert('Order placed successfully! Check your dashboard.');
+            setIsSuccessModalOpen(true);
 
             // Reset Flow
-            setIsShippingOpen(false);
+            setIsPreviewOpen(false);
             setPrompt('');
             setGeneratedImage(null);
             if (onDesignSaved) onDesignSaved();
 
         } catch (error) {
             console.error("Save Error:", error);
-            alert(`Failed to save order: ${error.message}`);
+            alert(`Failed to save design: ${error.message}`);
         } finally {
             setIsSaving(false);
         }
@@ -149,12 +147,12 @@ const HeroSection = ({ onDesignSaved }) => {
                 onRetry={handleGenerate}
             />
 
-            <ShippingForm
-                isOpen={isShippingOpen}
-                onClose={() => setIsShippingOpen(false)}
-                onSubmit={handleSaveOrder}
-                loading={isSaving}
+            <SuccessModal
+                isOpen={isSuccessModalOpen}
+                onClose={() => setIsSuccessModalOpen(false)}
             />
+
+
 
             {/* Main Content */}
             <div className="w-full max-w-xl flex flex-col items-center space-y-12">

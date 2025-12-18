@@ -44,11 +44,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     <div className="product-image-gallery flex flex-col-reverse lg:flex-row gap-4">
                         {/* Thumbnail Strip (Mock) */}
                         <div className="hidden lg:flex flex-col gap-4 w-20">
-                            {[1, 2, 3].map((i) => (
-                                <button key={i} className={`aspect-square rounded-lg border-2 ${i === 1 ? 'border-gray-900' : 'border-transparent'} overflow-hidden hover:border-gray-300 transition-all`}>
-                                    <img src={design.image_url} alt="Thumbnail" className="w-full h-full object-cover" />
-                                </button>
-                            ))}
+
+                            <button className={`aspect-square rounded-lg border-2 border-transparent overflow-hidden hover:border-gray-300 transition-all`}>
+                                <img src={design.image_url} alt="Thumbnail" className="w-full h-full object-cover" />
+                            </button>
+
                         </div>
 
                         {/* Main Image */}

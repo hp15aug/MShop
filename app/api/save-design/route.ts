@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
         const { base64Image, prompt, color, shipmentDetails } = await request.json();
 
-        if (!base64Image || !prompt || !color || !shipmentDetails) {
+        if (!base64Image || !prompt || !color) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
@@ -51,9 +51,9 @@ export async function POST(request: Request) {
                 prompt_text: prompt,
                 base_color: color,
                 user_email: user.email,
-                shipment_name: shipmentDetails.name,
-                shipment_address: shipmentDetails.address,
-                shipment_phone: shipmentDetails.phone
+                shipment_name: shipmentDetails?.name || null,
+                shipment_address: shipmentDetails?.address || null,
+                shipment_phone: shipmentDetails?.phone || null
             })
             .select()
             .single();

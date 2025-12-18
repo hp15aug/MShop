@@ -61,7 +61,7 @@ export default function DesignGallery() {
                             <div>
                                 <h3 className="text-lg font-medium text-gray-900">
                                     <span aria-hidden="true" className="absolute inset-0" />
-                                    Custom Design
+                                    <span className="line-clamp-1" title={design.prompt_text}>{design.prompt_text.toUpperCase()} T-SHIRT</span>
                                 </h3>
                                 <p className="mt-1 text-sm text-gray-500 capitalize">{design.base_color} T-Shirt</p>
                             </div>
