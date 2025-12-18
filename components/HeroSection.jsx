@@ -165,7 +165,7 @@ const HeroSection = ({ onDesignSaved }) => {
 
                 {/* T-Shirt Preview Area */}
                 <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-gray-200 to-gray-100 rounded-full blur-2xl opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
+                    <div className="absolute inset-0 bg-linear-to-tr from-gray-200 to-gray-100 rounded-full blur-2xl opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
 
                     <div className="relative drop-shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2">
                         <Shirt

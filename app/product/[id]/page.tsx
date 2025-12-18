@@ -60,7 +60,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     {/* Product Info (Right) */}
                     <div className="mt-10 lg:mt-0 lg:pl-8">
                         <div className="mb-8">
-                            <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-2">Custom Design T-Shirt</h1>
+                            <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-2">{design.prompt_text.toUpperCase()} T-SHIRT</h1>
                             <p className="text-lg text-gray-500 capitalize">{design.base_color} Edition</p>
                             <div className="mt-4 flex items-end gap-4">
                                 <p className="text-3xl font-medium text-gray-900">$49.99</p>
