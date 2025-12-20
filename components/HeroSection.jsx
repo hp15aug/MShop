@@ -80,6 +80,9 @@ const HeroSection = ({ onDesignSaved }) => {
 
             setGeneratedImage(imageString);
 
+            // Dispatch event to update header count
+            window.dispatchEvent(new Event('generation_created'));
+
         } catch (error) {
             console.error("Generation Error:", error);
             alert('Failed to generate design. Please try again.');

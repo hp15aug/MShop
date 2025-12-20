@@ -11,6 +11,29 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        // 1.5 Check Daily Limit
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const { count, error: countError } = await supabase
+            .from('generations')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .gte('created_at', today.toISOString());
+
+        if (countError) {
+            console.error('Error checking generation limit:', countError);
+            // Fail open or closed? Let's fail closed for safety, or open for UX?
+            // Let's log and proceed but maybe not block if it's just a count error?
+            // Actually, if the table doesn't exist, this will error.
+            // Let's assume strict enforcement.
+            return NextResponse.json({ error: 'Failed to check generation limit' }, { status: 500 });
+        }
+
+        if (count !== null && count >= 5) {
+            return NextResponse.json({ error: 'Daily generation limit reached (5/5)' }, { status: 429 });
+        }
+
         // 2. Parse Inputs
         const { prompt, color } = await request.json();
 
@@ -55,7 +78,7 @@ Style and quality requirements:
         // 4. Call the Imagen 4 API Directly (Bypassing SDK issues)
         // We use the model specifically found in your list: 'imagen-4.0-generate-001'
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: {
@@ -94,6 +117,19 @@ Style and quality requirements:
 
         const base64Image = prediction.bytesBase64Encoded;
         const dataUrl = `data:image/png;base64,${base64Image}`;
+
+        // 6. Record Generation
+        const { error: insertError } = await supabase
+            .from('generations')
+            .insert({
+                user_id: user.id,
+                prompt: fullPrompt
+            });
+
+        if (insertError) {
+            console.error('Failed to record generation:', insertError);
+            // Don't fail the request, just log it
+        }
 
         return NextResponse.json({ image: dataUrl });
 
