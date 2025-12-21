@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/client';
 import AuthModal from './AuthModal';
 import PreviewModal from './PreviewModal';
 import SuccessModal from './SuccessModal';
+import ErrorModal from './ErrorModal';
 
 const HeroSection = ({ onDesignSaved }) => {
     // State management
@@ -17,6 +18,8 @@ const HeroSection = ({ onDesignSaved }) => {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Data State
     const [generatedImage, setGeneratedImage] = useState(null);
@@ -85,9 +88,10 @@ const HeroSection = ({ onDesignSaved }) => {
 
         } catch (error) {
             console.error("Generation Error:", error);
-            alert('Failed to generate design. Please try again.');
-            setGeneratedImage('/tshirt.png');
-            setIsPreviewOpen(true);
+            setErrorMessage(error.message || 'Failed to generate design. Please try again.');
+            setIsErrorModalOpen(true);
+            // setGeneratedImage('/tshirt.png'); // Optional: fallback
+            // setIsPreviewOpen(true); // Optional: show preview with fallback
         } finally {
             setIsGenerating(false);
         }
@@ -156,6 +160,12 @@ const HeroSection = ({ onDesignSaved }) => {
             <SuccessModal
                 isOpen={isSuccessModalOpen}
                 onClose={() => setIsSuccessModalOpen(false)}
+            />
+
+            <ErrorModal
+                isOpen={isErrorModalOpen}
+                onClose={() => setIsErrorModalOpen(false)}
+                message={errorMessage}
             />
 
 
