@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, User, LogOut, ChevronDown } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Search, Sparkles } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import AuthModal from './AuthModal';
 
@@ -10,7 +10,14 @@ export default function Header() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [generationsLeft, setGenerationsLeft] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const supabase = createClient();
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -68,60 +75,79 @@ export default function Header() {
 
     return (
         <>
-            <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    {/* Logo / Brand */}
-                    <Link href="/" className="text-xl font-light tracking-tight text-gray-900">
-                        <span className="font-semibold">Vision</span> Shirt
-                    </Link>
+            <header
+                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${scrolled ? 'bg-white/90 backdrop-blur-xl border-gray-200 py-3 shadow-sm' : 'bg-white/50 backdrop-blur-md border-transparent py-5'
+                    }`}
+            >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                    {/* Left: Brand */}
+                    <div className="flex items-center gap-8">
+                        <Link href="/" className="flex items-center gap-2 group">
+                            <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center text-white transition-transform group-hover:scale-105">
+                                <span className="font-bold text-lg">V</span>
+                            </div>
+                            <span className="text-lg font-semibold tracking-tight text-gray-900">Vision Shirt</span>
+                        </Link>
+                    </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-4">
-                        <button className="p-2 text-gray-500 hover:text-gray-900 transition-colors relative">
-                            <ShoppingBag size={20} />
-                            {/* Cart Badge (Mock) */}
-                            {/* <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span> */}
+                    {/* Right: Actions */}
+                    <div className="flex items-center gap-2 sm:gap-4">
+                        <button className="p-2 text-gray-500 hover:text-gray-900 transition-colors rounded-full hover:bg-gray-100">
+                            <Search size={20} strokeWidth={1.5} />
                         </button>
 
+                        <button className="p-2 text-gray-500 hover:text-gray-900 transition-colors rounded-full hover:bg-gray-100 relative">
+                            <ShoppingBag size={20} strokeWidth={1.5} />
+                        </button>
+
+                        <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block"></div>
+
                         {user ? (
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3 pl-1">
                                 {generationsLeft !== null && (
-                                    <span className="text-sm text-gray-500 hidden sm:inline-block">
-                                        {generationsLeft} generations left
-                                    </span>
+                                    <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-medium border border-indigo-100">
+                                        <Sparkles size={12} />
+                                        {generationsLeft} left
+                                    </div>
                                 )}
 
                                 <div className="relative">
                                     <button
                                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                        className="flex items-center gap-1 focus:outline-none group"
+                                        className="flex items-center gap-2 focus:outline-none group"
                                     >
-                                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium text-sm group-hover:bg-indigo-200 transition-colors">
+                                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-700 font-medium text-sm border border-indigo-200 group-hover:shadow-md transition-all">
                                             {user.email?.charAt(0).toUpperCase()}
                                         </div>
-                                        <ChevronDown
-                                            size={16}
-                                            className={`text-gray-500 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                                        />
                                     </button>
 
                                     {isDropdownOpen && (
                                         <>
-                                            <div
-                                                className="fixed inset-0 z-40"
-                                                onClick={() => setIsDropdownOpen(false)}
-                                            ></div>
-                                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                                                <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100 truncate">
-                                                    {user.email}
+                                            <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)}></div>
+                                            <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95 origin-top-right">
+                                                <div className="px-4 py-3 border-b border-gray-50">
+                                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Signed in as</p>
+                                                    <p className="text-sm text-gray-900 font-medium truncate mt-0.5">{user.email}</p>
                                                 </div>
-                                                <button
-                                                    onClick={handleLogout}
-                                                    className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                >
-                                                    <LogOut size={16} className="mr-2" />
-                                                    Logout
-                                                </button>
+                                                <div className="py-1">
+                                                    <Link href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                                        <User size={16} className="mr-3 text-gray-400" />
+                                                        Profile
+                                                    </Link>
+                                                    <Link href="/orders" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                                        <ShoppingBag size={16} className="mr-3 text-gray-400" />
+                                                        Orders
+                                                    </Link>
+                                                </div>
+                                                <div className="py-1 border-t border-gray-50">
+                                                    <button
+                                                        onClick={handleLogout}
+                                                        className="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                                    >
+                                                        <LogOut size={16} className="mr-3" />
+                                                        Sign out
+                                                    </button>
+                                                </div>
                                             </div>
                                         </>
                                     )}
@@ -130,10 +156,9 @@ export default function Header() {
                         ) : (
                             <button
                                 onClick={() => setIsAuthModalOpen(true)}
-                                className="p-2 text-gray-500 hover:text-gray-900 transition-colors"
-                                title="Login"
+                                className="ml-2 px-5 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-full transition-all shadow-sm hover:shadow-md"
                             >
-                                <User size={20} />
+                                Sign In
                             </button>
                         )}
                     </div>
@@ -147,4 +172,4 @@ export default function Header() {
             />
         </>
     );
-}
+} 

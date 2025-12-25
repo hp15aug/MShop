@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Share2, Check, Loader2 } from 'lucide-react';
+import { Share2, Check, Loader2, Ruler } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface ProductDetailsProps {
@@ -16,8 +16,11 @@ interface ProductDetailsProps {
 
 import OrderSuccessModal from './OrderSuccessModal';
 
+import SizeGuideModal from './SizeGuideModal';
+
 export default function ProductDetails({ design }: ProductDetailsProps) {
     const [selectedSize, setSelectedSize] = useState<string | null>(null);
+    const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
     const [isOrdering, setIsOrdering] = useState(false);
     const [showAddressForm, setShowAddressForm] = useState(false);
     const [shippingDetails, setShippingDetails] = useState({
@@ -84,6 +87,11 @@ export default function ProductDetails({ design }: ProductDetailsProps) {
                 isOpen={showSuccessModal}
                 onClose={() => setShowSuccessModal(false)}
                 orderId={orderId}
+            />
+
+            <SizeGuideModal
+                isOpen={isSizeGuideOpen}
+                onClose={() => setIsSizeGuideOpen(false)}
             />
 
             {showAddressForm ? (
@@ -181,7 +189,13 @@ export default function ProductDetails({ design }: ProductDetailsProps) {
                     <div className="mb-10">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                            <button className="text-sm text-indigo-600 hover:text-indigo-500">Size Guide</button>
+                            <button
+                                onClick={() => setIsSizeGuideOpen(true)}
+                                className="text-sm text-indigo-600 hover:text-indigo-500 font-medium flex items-center gap-1"
+                            >
+                                <Ruler size={14} />
+                                Size Guide
+                            </button>
                         </div>
                         <div className="grid grid-cols-6 gap-3">
                             {['XS', 'S', 'M', 'L', 'XL', '2X'].map((size) => (

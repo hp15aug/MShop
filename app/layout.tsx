@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Create unique, custom t-shirt designs instantly using advanced AI. Design, visualize, and order your custom apparel.",
 };
 
-import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({
   children,
@@ -29,10 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        <div className="pt-16">
+        <div className="min-h-screen">
           {children}
         </div>
+        <Footer />
       </body>
     </html>
   );
