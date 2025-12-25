@@ -10,7 +10,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { base64Image, prompt, color, shipmentDetails } = await request.json();
+        const { base64Image, prompt, color, shipmentDetails, name, price, description } = await request.json();
 
         if (!base64Image || !prompt || !color) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -53,7 +53,10 @@ export async function POST(request: Request) {
                 user_email: user.email,
                 shipment_name: shipmentDetails?.name || null,
                 shipment_address: shipmentDetails?.address || null,
-                shipment_phone: shipmentDetails?.phone || null
+                shipment_phone: shipmentDetails?.phone || null,
+                name: name || 'Untitled Design',
+                price: price || 25.00,
+                description: description || prompt
             })
             .select()
             .single();

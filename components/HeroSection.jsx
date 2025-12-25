@@ -7,6 +7,7 @@ import AuthModal from './AuthModal';
 import PreviewModal from './PreviewModal';
 import SuccessModal from './SuccessModal';
 import ErrorModal from './ErrorModal';
+import ProductDetailsModal from './ProductDetailsModal';
 
 const HeroSection = ({ onDesignSaved }) => {
     // State management
@@ -17,6 +18,7 @@ const HeroSection = ({ onDesignSaved }) => {
 
     // UI State
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
@@ -26,6 +28,7 @@ const HeroSection = ({ onDesignSaved }) => {
     const [generatedImage, setGeneratedImage] = useState(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isEnhancing, setIsEnhancing] = useState(false);
 
     const supabase = createClient();
     const router = useRouter();
@@ -54,6 +57,36 @@ const HeroSection = ({ onDesignSaved }) => {
         { name: 'Crimson Red', hex: '#DC2626', class: 'bg-red-600' },
         { name: 'Forest Green', hex: '#059669', class: 'bg-emerald-600' },
     ];
+
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 300)}px`;
+        }
+    }, [prompt]);
+
+    const handleEnhancePrompt = async () => {
+        if (!prompt.trim()) return;
+        setIsEnhancing(true);
+        try {
+            const response = await fetch('/api/enhance-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+
+            setPrompt(data.enhancedPrompt);
+        } catch (error) {
+            console.error("Enhancement Error:", error);
+            // Optionally show a toast or small error, but don't block flow
+        } finally {
+            setIsEnhancing(false);
+        }
+    };
 
     const handleGenerate = async (e) => {
         e.preventDefault();
@@ -93,10 +126,11 @@ const HeroSection = ({ onDesignSaved }) => {
     };
 
     const handleAccept = () => {
-        handleSaveOrder();
+        setIsPreviewOpen(false);
+        setIsProductDetailsOpen(true);
     };
 
-    const handleSaveOrder = async () => {
+    const handleFinalSave = async (details) => {
         setIsSaving(true);
         try {
             const selectedColorName = colors.find(c => c.hex === selectedColor)?.name || 'Black';
@@ -108,6 +142,7 @@ const HeroSection = ({ onDesignSaved }) => {
                     base64Image: generatedImage,
                     prompt,
                     color: selectedColorName,
+                    ...details // name, price, description
                 }),
             });
 
@@ -119,7 +154,7 @@ const HeroSection = ({ onDesignSaved }) => {
 
             router.push(`/product/${data.design.id}`);
 
-            setIsPreviewOpen(false);
+            setIsProductDetailsOpen(false);
             setPrompt('');
             setGeneratedImage(null);
             if (onDesignSaved) onDesignSaved();
@@ -133,7 +168,7 @@ const HeroSection = ({ onDesignSaved }) => {
     };
 
     return (
-        <section className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-white selection:bg-indigo-50 selection:text-indigo-900">
+        <section className="relative min-h-[90vh] mt-20 flex flex-col items-center justify-center overflow-hidden bg-white selection:bg-indigo-50 selection:text-indigo-900">
             {/* Background Elements - Subtle & Premium */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-50 via-white to-white opacity-80"></div>
@@ -143,6 +178,13 @@ const HeroSection = ({ onDesignSaved }) => {
             {/* Modals */}
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onAuthSuccess={() => setIsAuthModalOpen(false)} />
             <PreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} imageUrl={generatedImage} loading={isGenerating} onAccept={handleAccept} onRetry={handleGenerate} />
+            <ProductDetailsModal
+                isOpen={isProductDetailsOpen}
+                onClose={() => setIsProductDetailsOpen(false)}
+                onSave={handleFinalSave}
+                defaultPrompt={prompt}
+                isSaving={isSaving}
+            />
             <SuccessModal isOpen={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} />
             <ErrorModal isOpen={isErrorModalOpen} onClose={() => setIsErrorModalOpen(false)} message={errorMessage} />
 
@@ -222,39 +264,50 @@ const HeroSection = ({ onDesignSaved }) => {
                                     <textarea
                                         ref={textareaRef}
                                         value={prompt}
-                                        onChange={(e) => {
-                                            setPrompt(e.target.value);
-                                            e.target.style.height = 'auto';
-                                            e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
-                                        }}
+                                        onChange={(e) => setPrompt(e.target.value)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter' && !e.shiftKey) {
                                                 e.preventDefault();
                                                 handleGenerate(e);
                                             }
                                         }}
-                                        placeholder={user ? "A cyberpunk cat in neon rain" : "Login to start creating"}
+                                        placeholder={user ? "A cyberpunk cat " : "Login to start creating"}
                                         disabled={!user || isGenerating}
                                         rows={1}
-                                        className="w-full pl-6 pr-32 py-5 text-lg bg-white border border-gray-200 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:border-gray-300 focus:ring-4 focus:ring-gray-100 transition-all text-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[72px]"
+                                        className="w-full pl-6 pr-32 py-5 text-lg bg-white border border-gray-200 rounded-2xl shadow-sm placeholder-gray-400 focus:outline-none focus:border-gray-300 focus:ring-4 focus:ring-gray-100 transition-all text-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed resize-none overflow-hidden min-h-[72px] max-h-[300px]"
                                     />
 
-                                    <div className="absolute right-2 bottom-2">
+                                    <div className="absolute right-2 bottom-2 flex items-center gap-2">
                                         {user ? (
-                                            <button
-                                                type="submit"
-                                                disabled={!prompt.trim() || isGenerating}
-                                                className="h-14 px-6 bg-gray-900 hover:bg-black text-white rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg active:scale-95 font-medium"
-                                            >
-                                                {isGenerating ? (
-                                                    <Loader2 className="animate-spin" size={18} />
-                                                ) : (
-                                                    <>
-                                                        {/* <span></span> */}
-                                                        <Send size={16} />
-                                                    </>
-                                                )}
-                                            </button>
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleEnhancePrompt}
+                                                    disabled={!prompt.trim() || isGenerating || isEnhancing}
+                                                    className="h-14 w-14 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 rounded-xl flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg active:scale-95"
+                                                    title="Enhance with AI"
+                                                >
+                                                    {isEnhancing ? (
+                                                        <Loader2 className="animate-spin" size={20} />
+                                                    ) : (
+                                                        <Sparkles size={20} />
+                                                    )}
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    disabled={!prompt.trim() || isGenerating || isEnhancing}
+                                                    className="h-14 px-6 bg-gray-900 hover:bg-black text-white rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg active:scale-95 font-medium"
+                                                >
+                                                    {isGenerating ? (
+                                                        <Loader2 className="animate-spin" size={18} />
+                                                    ) : (
+                                                        <>
+                                                            {/* <span></span> */}
+                                                            <Send size={16} />
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </>
                                         ) : (
                                             <button
                                                 type="button"

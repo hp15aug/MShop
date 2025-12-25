@@ -94,9 +94,9 @@ export default function DesignGallery() {
                         <div className="space-y-2">
                             <div className="flex justify-between items-start gap-4">
                                 <h3 className="text-base font-medium text-gray-900 line-clamp-1 group-hover:text-indigo-600 transition-colors">
-                                    {design.prompt_text}
+                                    {design.name || design.prompt_text} T-Shirt
                                 </h3>
-                                <span className="text-base font-medium text-gray-900 shrink-0">$49.99</span>
+                                <span className="text-base font-medium text-gray-900 shrink-0">${design.price}</span>
                             </div>
 
                             <div className="flex items-center justify-between">
